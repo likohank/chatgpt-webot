@@ -73,7 +73,7 @@ def handle_recv_txt_msg(j):
     room_id = ""
     content: str = j["content"].strip()
 
-    access_internet: bool = True
+    access_internet: bool = False
     is_room: bool
     chatbot: Chatbot
 

@@ -76,7 +76,7 @@ class ChatTask:
             if self.is_citation:
                 prefix = ""
                 try:
-                    prefix = (self.bot.prev_question[-1] if self.type == "rg" else ( 
+                    prefix = (self.bot.prev_question[-1][-1] if self.type == "rg" else ( 
                                 "用150字内总结全部对话" if self.type == "z" else self.prompt)) + "\n- - - - - - - - - -\n"
                 except Exception as e:
                     traceback.print_exc()

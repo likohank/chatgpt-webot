@@ -1,26 +1,26 @@
 {
   "autoReply": true,
 
-  "internetKey": "-o",
+  "internetKey": "实时",
   "internetResult": 3,
 
-  "groupChatKey": "-c",
+  "groupChatKey": "小二",
   "grpReplyMode": true,
   "grpCitationMode": true,
-  "privateChatKey": "-c",
+  "privateChatKey": "小二",
   "prvReplyMode": true,
   "prvCitationMode": false,
-  "characterKey": "-p",
-  "conclusionKey": "-z",
+  "characterKey": "角色",
+  "conclusionKey": "总结一下",
 
   "stableDiffRly": true,
-  "groupImgKey": "-i",
-  "privateImgKey": "-i",
-  "negativePromptKey": "-n",
+  "groupImgKey": "来张图",
+  "privateImgKey": "来张图",
+  "negativePromptKey": "这点不好啊",
   "isCached": true,
 
-  "helpKey": "-h",
-  "resetChatKey": "-rs",
-  "regenerateKey": "-rg",
-  "rollbackKey": "-rb"
+  "helpKey": "帮助",
+  "resetChatKey": "清空会话",
+  "regenerateKey": "重来",
+  "rollbackKey": "回滚"
 }
