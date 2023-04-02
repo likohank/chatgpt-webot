@@ -6,7 +6,7 @@ import string
 import random
 
 import websocket
-
+import traceback
 from shared.shared import *
 from apibase.ChatGPTAPI import ChatbotError
 from .send import send_txt_msg, send_pic_msg
@@ -28,53 +28,63 @@ class ChatTask:
         self.reply = ""
 
     def play(self):
-        if self.type == "rs":
-            if self.bot is not None and len(self.bot.conversation) > 1:
-                self.bot.reset()
-                self.reply = "重置完成"
-            else:
-                self.reply = "您还没有开始第一次对话"
-                time.sleep(0.5)
+        try:
+            if self.type == "rs":
+                if self.bot is not None and len(self.bot.conversation) > 1:
+                    self.bot.reset()
+                    self.reply = "重置完成"
+                else:
+                    self.reply = "您还没有开始第一次对话"
+                    time.sleep(0.5)
 
-        elif self.type == "rg":
-            if self.bot is None or self.bot.question_num == 0:
-                self.reply = "您还没有问过问题"
-                time.sleep(0.5)
-            else:
-                print("ask:" + self.bot.prev_question[-1][-1])
+            elif self.type == "rg":
+                if self.bot is None or self.bot.question_num == 0:
+                    self.reply = "您还没有问过问题"
+                    time.sleep(0.5)
+                else:
+                    print("ask:" + self.bot.prev_question[-1][-1])
+                    try:
+                        self.reply += self.bot.ask(prompt=None)
+                    except ChatbotError as CE:
+                        self.reply += CE.__str__()
+
+            elif self.type == "z":
+                if self.bot is None or self.bot.question_num < 1:
+                    self.reply = "您还没有问过问题"
+                    time.sleep(0.5)
+                else:
+                    print("ask: 用150字内总结全部对话")
+                    self.reply += self.bot.conclusion()
+
+            elif self.type == "p":
                 try:
-                    self.reply += self.bot.ask(prompt=None)
+                    self.bot.set_system_character(role=self.prompt)
+                    self.reply += f"设定角色 {self.prompt} 成功"
+                except ChatbotError as CE:
+                    self.reply += CE.__str__()
+                    time.sleep(0.5)
+
+            elif self.type == "c":
+                print("ask:" + self.prompt)
+                try:
+                    self.reply += self.bot.ask(prompt=self.prompt, access_internet=self.access,
+                                               access_result=internetResult)
                 except ChatbotError as CE:
                     self.reply += CE.__str__()
 
-        elif self.type == "z":
-            if self.bot is None or self.bot.question_num < 1:
-                self.reply = "您还没有问过问题"
-                time.sleep(0.5)
-            else:
-                print("ask: 用150字内总结全部对话")
-                self.reply += self.bot.conclusion()
-
-        elif self.type == "p":
-            try:
-                self.bot.set_system_character(role=self.prompt)
-                self.reply += f"设定角色 {self.prompt} 成功"
-            except ChatbotError as CE:
-                self.reply += CE.__str__()
-                time.sleep(0.5)
-
-        elif self.type == "c":
-            print("ask:" + self.prompt)
-            try:
-                self.reply += self.bot.ask(prompt=self.prompt, access_internet=self.access,
-                                           access_result=internetResult)
-            except ChatbotError as CE:
-                self.reply += CE.__str__()
-
-        print("reply: " + self.reply)
-        if self.is_citation:
-            self.reply = (self.bot.prev_question[-1] if self.type == "rg" else (
-                "用150字内总结全部对话" if self.type == "z" else self.prompt)) + "\n- - - - - - - - - -\n" + self.reply.strip()
+            print("reply: " + self.reply)
+            if self.is_citation:
+                prefix = ""
+                try:
+                    prefix = (self.bot.prev_question[-1] if self.type == "rg" else ( 
+                                "用150字内总结全部对话" if self.type == "z" else self.prompt)) + "\n- - - - - - - - - -\n"
+                except Exception as e:
+                    traceback.print_exc()
+                self.reply = prefix + self.reply.strip()
+        except Exception as e:
+            self.reply = str(e)
+            traceback.print_exc()    
+            pass
         self.ws.send(send_txt_msg(text_string=self.reply.strip(), wx_id=self.room_id if self.is_room else self.wx_id))
 
 
